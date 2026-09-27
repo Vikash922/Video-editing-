@@ -52,7 +52,9 @@ object FFmpegProbe {
                 } else if (stream.type.equals("audio", ignoreCase = true)) {
                     val codecName = stream.codec ?: ""
                     sampleRate = stream.sampleRate?.toInt() ?: sampleRate
-                    channelCount = stream.channels?.toInt() ?: channelCount
+                    channelCount = stream.getNumberProperty("channels")?.toInt()
+                        ?: stream.getStringProperty("channels")?.toIntOrNull()
+                        ?: channelCount
                     audioCodec = when {
                         codecName.contains("aac", ignoreCase = true) -> AudioCodec.AAC
                         codecName.contains("mp3", ignoreCase = true) -> AudioCodec.MP3
