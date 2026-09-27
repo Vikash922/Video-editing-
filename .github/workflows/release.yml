@@ -87,11 +87,15 @@ jobs:
 
           VERSION="${{ steps.app_info.outputs.version }}"
 
-          # Find all APKs generated in release outputs
-          for apk in $(find app/build/outputs/apk/release -name "*.apk"); do
+          # Find all APKs generated in release outputs (excluding temporary aligned files)
+          for apk in $(find app/build/outputs/apk/release -name "app-*.apk" ! -name "aligned-*"); do
             echo "Processing APK: $apk"
             base_name=$(basename "$apk")
-            
+
+            # Extract arch: app-arm64-v8a-release-unsigned.apk -> arm64-v8a
+            arch=$(echo "$base_name" | sed -nE 's/^app-(.+)-release.*$/\1/p')
+            [ -z "$arch" ] && arch="universal"
+
             # Align APK if not already aligned
             aligned_apk="app/build/outputs/apk/release/aligned-${base_name}"
             if $ZIPALIGN -c 4 "$apk" >/dev/null 2>&1; then
@@ -101,7 +105,7 @@ jobs:
             fi
 
             # Sign with apksigner
-            final_apk="release-artifacts/VidoPRO-v${VERSION}-release.apk"
+            final_apk="release-artifacts/VidoPRO-v${VERSION}-${arch}.apk"
             $APKSIGNER sign --ks "$KEYSTORE" \
               --ks-key-alias "$KEY_ALIAS" \
               --ks-pass "pass:$KEYSTORE_PASS" \
@@ -112,8 +116,10 @@ jobs:
             # Verify signature
             $APKSIGNER verify -v "$final_apk"
             echo "Successfully signed: $final_apk"
-            break
           done
+
+          # Remove .idsig files so release only contains clean APKs and checksums
+          rm -f release-artifacts/*.idsig
 
           # Generate SHA256 Checksum
           cd release-artifacts
@@ -124,7 +130,7 @@ jobs:
       - name: Upload APK as Workflow Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VidoPRO-v${{ steps.app_info.outputs.version }}-Release-APK
+          name: VidoPRO-v${{ steps.app_info.outputs.version }}-Release-APKs
           path: release-artifacts/*
           retention-days: 30
 
@@ -152,12 +158,15 @@ jobs:
             
             Professional mobile video editor for Android built with Jetpack Compose, ExoPlayer, and C++/FFmpeg.
             
-            #### 📦 Downloads
-            - **APK:** `VidoPRO-v${{ steps.app_info.outputs.version }}-release.apk`
+            #### 📦 Optimized Downloads (Lightweight & Compressed)
+            - **`VidoPRO-v${{ steps.app_info.outputs.version }}-arm64-v8a.apk`**: Recommended for almost all modern Android phones (ultra-compact download size).
+            - **`VidoPRO-v${{ steps.app_info.outputs.version }}-armeabi-v7a.apk`**: For older 32-bit Android phones.
+            - **`VidoPRO-v${{ steps.app_info.outputs.version }}-universal.apk`**: Universal build containing all CPU architectures.
             - **Checksum:** Refer to `sha256sum.txt` for integrity verification.
             
             #### ✨ Highlights
             - Full VidoPRO UI & Rebranding
+            - Optimized download size with compressed native packaging
             - Jetpack Compose Interactive Timeline with fixed Playhead
             - Dynamic Video Thumbnail extraction with C++ FFmpeg JNI
             - Bookmark & Marker system with smooth navigation
