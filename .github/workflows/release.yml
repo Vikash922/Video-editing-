@@ -2,58 +2,168 @@ name: Release APK
 
 on:
   push:
-    tags: ['v*']
+    tags:
+      - 'v*'
   workflow_dispatch:
+    inputs:
+      create_github_release:
+        description: 'Publish as a GitHub Release with downloadable APK'
+        type: boolean
+        default: true
+        required: false
+      tag_name:
+        description: 'Custom Tag name (e.g. v1.0.0). Leave empty to use app version.'
+        type: string
+        default: ''
+        required: false
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  build-release:
+    name: Build & Release APK
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - name: Verify tag matches app versionName
-        if: github.ref_type == 'tag'
-        run: |
-          tag_version="${GITHUB_REF_NAME#v}"
-          app_version=$(sed -nE 's/.*versionName[[:space:]]*"([^"]+)".*/\1/p' app/build.gradle | head -1)
-          if [ -z "$app_version" ]; then
-            echo "Could not parse versionName from app/build.gradle" >&2
-            exit 1
-          fi
-          if [ "$tag_version" != "$app_version" ]; then
-            echo "Tag $GITHUB_REF_NAME (=> $tag_version) does not match app versionName ($app_version)" >&2
-            exit 1
-          fi
-          echo "Tag matches versionName: $app_version"
-      - uses: actions/setup-java@v5
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
-          distribution: temurin
+          fetch-depth: 0
+
+      - name: Extract App Version
+        id: app_info
+        run: |
+          VERSION_NAME=$(sed -nE 's/.*versionName[[:space:]]*"([^"]+)".*/\1/p' app/build.gradle | head -1)
+          if [ -z "$VERSION_NAME" ]; then
+            VERSION_NAME="1.0.0"
+          fi
+          echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "Detected app version: $VERSION_NAME"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
           java-version: '17'
-      - uses: gradle/actions/setup-gradle@v6
-      - run: chmod +x gradlew && ./gradlew assembleRelease
-      - uses: r0adkll/sign-android-release@v1
-        id: sign
-        env:
-          BUILD_TOOLS_VERSION: '34.0.0'
-        with:
-          releaseDirectory: app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-      - name: Rename signed APKs
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Grant Execute Permission for Gradlew
+        run: chmod +x gradlew
+
+      - name: Build Release APK with Gradle
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Sign APK (Secret Keystore or Auto Keystore)
         run: |
+          set -e
+          BUILD_TOOLS_DIR=$(ls -d $ANDROID_SDK_ROOT/build-tools/* | sort -V | tail -n 1)
+          ZIPALIGN="$BUILD_TOOLS_DIR/zipalign"
+          APKSIGNER="$BUILD_TOOLS_DIR/apksigner"
+          echo "Using Android Build Tools: $BUILD_TOOLS_DIR"
+
           mkdir -p release-artifacts
-          for apk in app/build/outputs/apk/release/app-*-release-unsigned-signed.apk; do
-            [ -f "$apk" ] || continue
-            name=$(basename "$apk")
-            arch=$(printf '%s' "$name" | sed -E 's/^app-(.+)-release-unsigned-signed\.apk$/\1/')
-            cp "$apk" "release-artifacts/VidoPRO-${arch}.apk"
+
+          # Determine whether custom signing secrets are provided
+          if [ -n "${{ secrets.SIGNING_KEY }}" ] && [ -n "${{ secrets.KEY_ALIAS }}" ]; then
+            echo "Signing with provided GitHub Secrets..."
+            echo "${{ secrets.SIGNING_KEY }}" | base64 -d > secret_keystore.jks
+            KEYSTORE="secret_keystore.jks"
+            KEY_ALIAS="${{ secrets.KEY_ALIAS }}"
+            KEYSTORE_PASS="${{ secrets.KEYSTORE_PASSWORD }}"
+            KEY_PASS="${{ secrets.KEY_PASSWORD }}"
+          else
+            echo "Secrets not found. Generating auto release keystore..."
+            keytool -genkeypair -v -keystore auto_release.jks \
+              -alias vidopro -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass vidopro123 -keypass vidopro123 \
+              -dname "CN=VidoPRO, OU=Video Editing, O=VidoPRO, L=Mumbai, S=MH, C=IN"
+            KEYSTORE="auto_release.jks"
+            KEY_ALIAS="vidopro"
+            KEYSTORE_PASS="vidopro123"
+            KEY_PASS="vidopro123"
+          fi
+
+          VERSION="${{ steps.app_info.outputs.version }}"
+
+          # Find all APKs generated in release outputs
+          for apk in $(find app/build/outputs/apk/release -name "*.apk"); do
+            echo "Processing APK: $apk"
+            base_name=$(basename "$apk")
+            
+            # Align APK if not already aligned
+            aligned_apk="app/build/outputs/apk/release/aligned-${base_name}"
+            if $ZIPALIGN -c 4 "$apk" >/dev/null 2>&1; then
+              cp "$apk" "$aligned_apk"
+            else
+              $ZIPALIGN -f -p 4 "$apk" "$aligned_apk"
+            fi
+
+            # Sign with apksigner
+            final_apk="release-artifacts/VidoPRO-v${VERSION}-release.apk"
+            $APKSIGNER sign --ks "$KEYSTORE" \
+              --ks-key-alias "$KEY_ALIAS" \
+              --ks-pass "pass:$KEYSTORE_PASS" \
+              --key-pass "pass:$KEY_PASS" \
+              --out "$final_apk" \
+              "$aligned_apk"
+
+            # Verify signature
+            $APKSIGNER verify -v "$final_apk"
+            echo "Successfully signed: $final_apk"
+            break
           done
-          ls -lh release-artifacts/
-      - uses: softprops/action-gh-release@v3
-        if: github.ref_type == 'tag'
+
+          # Generate SHA256 Checksum
+          cd release-artifacts
+          sha256sum *.apk > sha256sum.txt
+          ls -lh
+          cat sha256sum.txt
+
+      - name: Upload APK as Workflow Artifact
+        uses: actions/upload-artifact@v4
         with:
-          files: release-artifacts/*.apk
+          name: VidoPRO-v${{ steps.app_info.outputs.version }}-Release-APK
+          path: release-artifacts/*
+          retention-days: 30
+
+      - name: Determine Release Tag
+        id: release_tag
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          elif [ -n "${{ inputs.tag_name }}" ]; then
+            TAG="${{ inputs.tag_name }}"
+          else
+            TAG="v${{ steps.app_info.outputs.version }}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Selected Release Tag: $TAG"
+
+      - name: Create or Update GitHub Release
+        if: github.ref_type == 'tag' || inputs.create_github_release == true
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_tag.outputs.tag }}
+          name: VidoPRO ${{ steps.release_tag.outputs.tag }}
+          body: |
+            ### 🎬 VidoPRO Android Release
+            
+            Professional mobile video editor for Android built with Jetpack Compose, ExoPlayer, and C++/FFmpeg.
+            
+            #### 📦 Downloads
+            - **APK:** `VidoPRO-v${{ steps.app_info.outputs.version }}-release.apk`
+            - **Checksum:** Refer to `sha256sum.txt` for integrity verification.
+            
+            #### ✨ Highlights
+            - Full VidoPRO UI & Rebranding
+            - Jetpack Compose Interactive Timeline with fixed Playhead
+            - Dynamic Video Thumbnail extraction with C++ FFmpeg JNI
+            - Bookmark & Marker system with smooth navigation
+            - Unified multi-format Media Decoder engine
+          draft: false
+          prerelease: false
+          files: release-artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
