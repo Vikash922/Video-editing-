@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="6dp"
+    android:scrollbars="none"
+    android:background="@drawable/bg_bottom_nav_docked"
+    android:elevation="12dp"
+    android:clipToOutline="true"
+    android:requiresFadingEdge="horizontal"
+    android:fadingEdgeLength="24dp"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="8dp"
+        android:paddingHorizontal="6dp">
+
+        <!-- Cancel / Deselect -->
+        <LinearLayout
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoCancel"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_close_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Close clip tools"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/cancel"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 1. Split -->
+        <LinearLayout
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoSplit"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_cut_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Split clip"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/split"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 2. Speed -->
+        <LinearLayout
+            android:id="@+id/btnVideoSpeedContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoSpeed"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_speed_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Speed"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/str_speed"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 3. Volume -->
+        <LinearLayout
+            android:id="@+id/btnVideoMuteContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoMute"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_volume_up_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Volume"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:id="@+id/tvVideoMuteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Volume"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 4. Animation (Transitions / Animation) -->
+        <LinearLayout
+            android:id="@+id/btnVideoAnimationContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoAnimation"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_animation_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Animation"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Animation"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 5. Adjust -->
+        <LinearLayout
+            android:id="@+id/btnVideoAdjustContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoAdjust"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_page_info_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Adjust"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/str_adjust"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 6. Crop -->
+        <LinearLayout
+            android:id="@+id/btnVideoCropContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoCrop"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_crop_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Crop"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/str_crop"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 7. Mask -->
+        <LinearLayout
+            android:id="@+id/btnVideoMaskContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoMask"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_mask_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Mask"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Mask"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 8. Keyframe (Hidden from bottom sheet as requested; now placed above timeline) -->
+        <LinearLayout
+            android:id="@+id/btnVideoKeyframeContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
+            <ImageButton
+                android:id="@+id/btnVideoKeyframe"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_keyframe_main"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Keyframe"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Keyframe"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 9. Filters -->
+        <LinearLayout
+            android:id="@+id/btnVideoFilterContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoFilter"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_palette_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Filters"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/str_filters"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 10. Trim -->
+        <LinearLayout
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoTrim"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_trim_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Trim"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/trim"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 11. Extract Audio -->
+        <LinearLayout
+            android:id="@+id/btnVideoExtractAudioContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoExtractAudio"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_audio_extract_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Extract Audio"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/str_extract"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 12. Freeze Frame -->
+        <LinearLayout
+            android:id="@+id/btnVideoFreezeFrameContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoFreezeFrame"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_freeze_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Freeze Frame"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/str_freeze"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 13. Reverse -->
+        <LinearLayout
+            android:id="@+id/btnVideoReverseContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoReverse"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_fast_rewind_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Reverse"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/str_reverse"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 14. Mirror -->
+        <LinearLayout
+            android:id="@+id/btnVideoMirrorContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoMirror"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_mirror"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Mirror"
+                app:tint="@color/toolTextInactive" />
+            <TextView
+                android:id="@+id/tvVideoMirror"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Mirror"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/toolTextInactive"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- 15. Delete -->
+        <LinearLayout
+            android:id="@+id/btnVideoDeleteContainer"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/btnVideoDelete"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/tool_button_inactive"
+                android:src="@drawable/ic_delete_24"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Delete clip"
+                app:tint="#F44336" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/delete"
+                android:textSize="11sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="#F44336"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+    </LinearLayout>
+</HorizontalScrollView>

@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Color Picker Container (Visible in Palette Mode) -->
+    <HorizontalScrollView
+        android:id="@+id/colorPickerContainer"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:scrollbars="none"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginHorizontal="16dp"
+        android:background="@drawable/bg_bottom_nav_floating"
+        android:elevation="12dp"
+        android:visibility="gone">
+        <LinearLayout
+            android:id="@+id/colorPickerList"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp" />
+    </HorizontalScrollView>
+
+    <!-- Format Settings Container -->
+    <include layout="@layout/text_format_settings"
+        android:id="@+id/formatSettingsContainer"
+        android:visibility="gone" />
+
+    <!-- Toolbar Row -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:scrollbars="none"
+        android:background="@drawable/bg_bottom_nav_docked"
+        android:elevation="12dp"
+        android:clipToOutline="true"
+        android:requiresFadingEdge="horizontal"
+        android:fadingEdgeLength="24dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="8dp"
+            android:paddingHorizontal="6dp">
+
+            <!-- Cancel -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageButton
+                    android:id="@+id/btnTextCancel"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/tool_button_inactive"
+                    android:src="@drawable/ic_close_24"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Cancel text edit"
+                    app:tint="@color/toolTextInactive" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/cancel"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/toolTextInactive"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- 1. Edit (Keyboard) -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageButton
+                    android:id="@+id/btnTextKeyboardTab"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/tool_button_inactive"
+                    android:src="@drawable/ic_keyboard_24"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Edit text"
+                    app:tint="@color/colorPrimary" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Edit"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/colorPrimary"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- 2. Font -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageButton
+                    android:id="@+id/btnTextFormatTab"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/tool_button_inactive"
+                    android:src="@drawable/ic_format_24"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Font"
+                    app:tint="@color/toolTextInactive" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Font"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/toolTextInactive"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- 3. Style (Color / Palette) -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageButton
+                    android:id="@+id/btnTextPaletteTab"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/tool_button_inactive"
+                    android:src="@drawable/ic_palette_24"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Style"
+                    app:tint="@color/toolTextInactive" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Style"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/toolTextInactive"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- 4. Animation -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageButton
+                    android:id="@+id/btnTextAnimation"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/tool_button_inactive"
+                    android:src="@drawable/ic_animation_24"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Animation"
+                    app:tint="@color/toolTextInactive" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Animation"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/toolTextInactive"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- 5. Position -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageButton
+                    android:id="@+id/btnTextPosition"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/tool_button_inactive"
+                    android:src="@drawable/ic_crop_portrait_24"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Position"
+                    app:tint="@color/toolTextInactive" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Position"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/toolTextInactive"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- 6. Opacity -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageButton
+                    android:id="@+id/btnTextOpacity"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/tool_button_inactive"
+                    android:src="@drawable/ic_opacity_24"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Opacity"
+                    app:tint="@color/toolTextInactive" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Opacity"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/toolTextInactive"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- 7. Keyframe (Hidden from bottom sheet as requested; now placed above timeline) -->
+            <LinearLayout
+                android:id="@+id/btnTextKeyframeContainer"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone">
+                <ImageButton
+                    android:id="@+id/btnTextKeyframe"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/tool_button_inactive"
+                    android:src="@drawable/ic_keyframe_main"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Keyframe"
+                    app:tint="@color/toolTextInactive" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Keyframe"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/toolTextInactive"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- 8. Duplicate -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageButton
+                    android:id="@+id/btnTextDuplicate"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/tool_button_inactive"
+                    android:src="@drawable/ic_copy_24"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Duplicate"
+                    app:tint="@color/toolTextInactive" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/str_duplicate"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/toolTextInactive"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- 9. Delete -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageButton
+                    android:id="@+id/btnTextDelete"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/tool_button_inactive"
+                    android:src="@drawable/ic_delete_24"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Delete"
+                    app:tint="#F44336" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/delete"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#F44336"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <!-- 10. Done -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <ImageButton
+                    android:id="@+id/btnTextDone"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/tool_button_inactive"
+                    android:src="@drawable/ic_check_24"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Done"
+                    app:tint="@color/colorPrimary" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/done"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/colorPrimary"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+        </LinearLayout>
+    </HorizontalScrollView>
+</LinearLayout>

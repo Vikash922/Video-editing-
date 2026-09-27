@@ -1,0 +1,57 @@
+<resources>
+
+    <!-- PRIMARY: Vibrant Indigo / Violet for professional studio identity -->
+    <color name="colorPrimary">#6366F1</color>
+    <color name="colorPrimaryVariant">#4F46E5</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+
+    <!-- SECONDARY: Bright Accent -->
+    <color name="colorSecondary">#6366F1</color>
+    <color name="colorSecondaryVariant">#4F46E5</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
+
+    <!-- BACKGROUND: Dark Charcoal (Professional Solid, NO gradients) -->
+    <color name="background">#121216</color>
+    <color name="colorOnBackground">#F2F2F6</color>
+
+    <!-- SURFACE: Sleek Graphite/Charcoal -->
+    <color name="colorSurface">#181820</color>
+    <color name="colorOnSurface">#F2F2F6</color>
+
+    <!-- UI SPECIFIC -->
+    <color name="statusBarColor">#121216</color>
+    <color name="navigationBarColor">#121216</color>
+    <color name="cinemaBlack">#0B0B0E</color>
+    <color name="textColor">#F2F2F6</color>
+
+    <!-- CONTAINERS (Elevation levels) -->
+    <color name="surfaceContainerLowest">#0B0B0E</color>
+    <color name="surfaceContainer">#181820</color>
+    <color name="surfaceContainerHigh">#22222C</color>
+    <color name="surfaceVariant">#2A2A36</color>
+    <color name="floatingPanelBackground">#1E1E28</color>
+
+    <color name="primaryContainer">#6366F1</color>
+    <color name="onPrimaryContainer">#FFFFFF</color>
+
+    <color name="tertiary">#FFB74D</color>
+    <color name="tertiaryContainer">#FFA726</color>
+    <color name="onTertiary">#121216</color>
+
+    <!-- OUTLINES -->
+    <color name="outline">#333342</color>
+    <color name="outlineVariant">#242430</color>
+    <color name="iconSecondary">#9E9EB2</color>
+
+    <!-- TOOL COLORS -->
+    <color name="activeTool">#6366F1</color>
+    <color name="activeToolBackground">#28283E</color>
+    <color name="inactiveTool">#9E9EB2</color>
+    <color name="inactiveToolBackground">#181820</color>
+
+    <color name="toolTextActive">#FFFFFF</color>
+    <color name="toolTextInactive">#9E9EB2</color>
+
+    <color name="sliderHalo">#22222C</color>
+
+</resources>
