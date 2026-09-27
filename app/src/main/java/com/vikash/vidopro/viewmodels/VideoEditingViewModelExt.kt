@@ -42,10 +42,44 @@ fun VideoEditingViewModel.addCropOperation(
     aspectRatio: String, xFraction: Float = 0f, yFraction: Float = 0f,
     wFraction: Float = 1f, hFraction: Float = 1f
 ) {
-    executeCommand(ReplaceUniqueOperationCommand(
-        EditOperation.Crop(aspectRatio, xFraction, yFraction, wFraction, hFraction),
-        "Crop Video"
-    ))
+    try {
+        val validRatio = if (aspectRatio in EditOperation.Crop.SUPPORTED_RATIOS) {
+            aspectRatio
+        } else {
+            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                try {
+                    android.widget.Toast.makeText(
+                        com.vikash.vidopro.VidoPROApplication.instance,
+                        "Ratio adjusted to default",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                } catch (_: Exception) {}
+            }
+            EditOperation.Crop.RATIO_16_9
+        }
+
+        executeCommand(ReplaceUniqueOperationCommand(
+            EditOperation.Crop(validRatio, xFraction, yFraction, wFraction, hFraction),
+            "Crop Video"
+        ))
+    } catch (e: Exception) {
+        android.util.Log.e("VideoEditingViewModel", "Error adding crop operation for ratio $aspectRatio: ${e.message}", e)
+        try {
+            executeCommand(ReplaceUniqueOperationCommand(
+                EditOperation.Crop(EditOperation.Crop.RATIO_16_9, 0f, 0f, 1f, 1f),
+                "Crop Video"
+            ))
+            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                try {
+                    android.widget.Toast.makeText(
+                        com.vikash.vidopro.VidoPROApplication.instance,
+                        "Ratio adjusted to default",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                } catch (_: Exception) {}
+            }
+        } catch (_: Exception) {}
+    }
 }
 
 fun VideoEditingViewModel.updateCanvasBackgroundOperation(

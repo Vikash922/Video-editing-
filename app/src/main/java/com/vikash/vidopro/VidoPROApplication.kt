@@ -6,8 +6,14 @@ import android.util.Log
 import com.vikash.vidopro.utils.ErrorCode
 
 class VidoPROApplication : Application() {
+    companion object {
+        lateinit var instance: VidoPROApplication
+            private set
+    }
+
     override fun onCreate() {
         super.onCreate()
+        instance = this
         setupGlobalCrashHandler()
     }
 

@@ -25,6 +25,7 @@ object MediaFileDetector {
         var audioMime: String? = null
         var channelCount = 0
         var sampleRate = 0
+        var frameRate = 0f
         var isDrm = false
 
         try {
@@ -35,6 +36,9 @@ object MediaFileDetector {
             bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toLongOrNull() ?: 0L
             rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0
             videoMime = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
+            
+            val captureFps = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE)?.toFloatOrNull() ?: 0f
+            if (captureFps > 0f) frameRate = captureFps
         } catch (e: Exception) {
             Log.w(TAG, "MediaMetadataRetriever initial probe warning: ${e.message}")
         } finally {
@@ -60,6 +64,17 @@ object MediaFileDetector {
                     }
                     if (format.containsKey(MediaFormat.KEY_ROTATION)) {
                         rotation = format.getInteger(MediaFormat.KEY_ROTATION)
+                    }
+                    if (format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+                        frameRate = try {
+                            format.getFloat(MediaFormat.KEY_FRAME_RATE)
+                        } catch (_: Exception) {
+                            try {
+                                format.getInteger(MediaFormat.KEY_FRAME_RATE).toFloat()
+                            } catch (_: Exception) {
+                                frameRate
+                            }
+                        }
                     }
                 } else if (mime.startsWith("audio/")) {
                     audioMime = mime
@@ -88,7 +103,6 @@ object MediaFileDetector {
         val decoderType = if (isDrm) {
             DecoderType.UNSUPPORTED
         } else if (container == ContainerFormat.AVI || container == ContainerFormat.FLV) {
-            // Android native MediaCodec has notoriously poor AVI/FLV support -> direct FFmpeg fallback
             DecoderType.FFMPEG_SOFTWARE
         } else if (videoMime != null) {
             CodecDetector.findVideoDecoder(videoMime, width, height)
@@ -107,11 +121,28 @@ object MediaFileDetector {
             height = height,
             durationUs = durationUs,
             bitrate = bitrate,
+            frameRate = frameRate,
             rotationDegrees = rotation,
             channelCount = channelCount,
             sampleRate = sampleRate,
             isDrmProtected = isDrm,
             chosenDecoder = decoderType
         )
+    }
+
+    /**
+     * Checks if media is too heavy for direct phone editing (e.g. 4K or 60fps)
+     * and requires background proxy generation to prevent timeline stuttering/crashes.
+     */
+    fun isHeavyMedia(width: Int, height: Int, frameRate: Float, bitrate: Long = 0L): Boolean {
+        val is4K = (width >= 3840 || height >= 2160) || (width >= 2160 && height >= 3840) || (width * height >= 3840 * 2000)
+        val isHighFps = frameRate >= 50f
+        val isHighBitrate = bitrate > 35_000_000L
+        return is4K || isHighFps || isHighBitrate
+    }
+
+    suspend fun checkIsHeavyMedia(context: Context, uri: Uri): Boolean = withContext(Dispatchers.IO) {
+        val info = probe(context, uri)
+        isHeavyMedia(info.width, info.height, info.frameRate, info.bitrate)
     }
 }

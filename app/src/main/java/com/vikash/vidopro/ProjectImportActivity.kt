@@ -529,17 +529,32 @@ class ProjectImportActivity : AppCompatActivity() {
                 Log.e(TAG, "Failed to save updated project", e)
             }
             
-            // Check for heavy videos and trigger ProxyGenerationService
-            checkAndTriggerProxy(newSourceUri, "primary")
+            // Check for heavy videos (4K or 60fps) and trigger background proxy generation
+            var hasHeavyVideo = false
+            if (isHeavyVideo(newSourceUri)) {
+                hasHeavyVideo = true
+                checkAndTriggerProxy(newSourceUri, "primary")
+            }
             
             val mergeOps = newOps.filterIsInstance<EditOperation.Merge>()
             mergeOps.forEach { mergeOp ->
                 mergeOp.items.forEachIndexed { index, item ->
-                    checkAndTriggerProxy(item.uri, "merge_${mergeOp.id}_$index")
+                    if (isHeavyVideo(item.uri)) {
+                        hasHeavyVideo = true
+                        checkAndTriggerProxy(item.uri, "merge_${mergeOp.id}_$index")
+                    }
                 }
             }
 
             withContext(Dispatchers.Main) {
+                if (hasHeavyVideo) {
+                    Toast.makeText(
+                        this@ProjectImportActivity,
+                        "Optimizing video for smooth editing...",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
                 val intent = Intent(this@ProjectImportActivity, VideoEditingActivity::class.java).apply {
                     putExtra("PROJECT_URI", projectUri)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -685,36 +700,32 @@ class ProjectImportActivity : AppCompatActivity() {
     }
 
     private fun checkAndTriggerProxy(uri: Uri, dependencyId: String) {
-        if (isHeavyVideo(uri)) {
-            val intent = Intent(this, com.vikash.vidopro.services.ProxyGenerationService::class.java).apply {
-                putExtra(com.vikash.vidopro.services.ProxyGenerationService.EXTRA_SOURCE_URI, uri.toString())
-                putExtra(com.vikash.vidopro.services.ProxyGenerationService.EXTRA_DEPENDENCY_ID, dependencyId)
-            }
-            androidx.core.content.ContextCompat.startForegroundService(this, intent)
-            Log.d(TAG, "Triggered ProxyGenerationService for heavy video: $uri")
+        val intent = Intent(this, com.vikash.vidopro.services.ProxyGenerationService::class.java).apply {
+            putExtra(com.vikash.vidopro.services.ProxyGenerationService.EXTRA_SOURCE_URI, uri.toString())
+            putExtra(com.vikash.vidopro.services.ProxyGenerationService.EXTRA_DEPENDENCY_ID, dependencyId)
         }
+        androidx.core.content.ContextCompat.startForegroundService(this, intent)
+        Log.d(TAG, "Triggered ProxyGenerationService for heavy video: $uri")
     }
 
-    private fun isHeavyVideo(uri: Uri): Boolean {
+    private suspend fun isHeavyVideo(uri: Uri): Boolean {
         return try {
-            contentResolver.openFileDescriptor(uri, "r")?.use { pfd ->
-                val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(pfd.fileDescriptor)
-                val widthStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
-                val heightStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
-                val bitrateStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)
-                retriever.release()
-
-                val width = widthStr?.toIntOrNull() ?: 0
-                val height = heightStr?.toIntOrNull() ?: 0
-                val bitrate = bitrateStr?.toLongOrNull() ?: 0L
-
-                // Consider heavy if 4K (either dimension >= 2160) or bitrate > 30 Mbps (30000000)
-                width >= 2160 || height >= 2160 || bitrate > 30_000_000L
-            } ?: false
+            com.vikash.vidopro.core.media.detector.MediaFileDetector.checkIsHeavyMedia(this@ProjectImportActivity, uri)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to check if video is heavy", e)
-            false
+            try {
+                contentResolver.openFileDescriptor(uri, "r")?.use { pfd ->
+                    val retriever = MediaMetadataRetriever()
+                    retriever.setDataSource(pfd.fileDescriptor)
+                    val width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
+                    val height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
+                    val bitrate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE)?.toLongOrNull() ?: 0L
+                    val fps = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE)?.toFloatOrNull() ?: 0f
+                    retriever.release()
+                    width >= 2160 || height >= 2160 || fps >= 50f || bitrate > 35_000_000L
+                } ?: false
+            } catch (_: Exception) {
+                false
+            }
         }
     }
 }

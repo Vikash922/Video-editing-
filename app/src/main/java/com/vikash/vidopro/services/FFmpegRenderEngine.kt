@@ -523,8 +523,8 @@ class FFmpegRenderEngine(private val context: Context) {
         sourceFilePath: String,
         outputFilePath: String
     ): RenderResult {
-        // Fast proxy generation: Downscale to max 720p (keeping aspect ratio), fast preset for encoding speed.
-        val command = "-y -i \"$sourceFilePath\" -vf \"scale='min(1280,iw)':-2\" -c:v libx264 -preset ultrafast -crf 28 -tune fastdecode -c:a copy \"$outputFilePath\""
+        // Fast proxy generation: Downscale to max 1080p, cap frame rate to 30fps for buttery-smooth timeline scrubbing on mobile
+        val command = "-y -i \"$sourceFilePath\" -vf \"scale='min(1920,iw)':-2,fps=30\" -c:v libx264 -preset ultrafast -crf 26 -tune fastdecode -c:a copy \"$outputFilePath\""
         return executeCommand(command)
     }
 
@@ -642,6 +642,8 @@ class FFmpegRenderEngine(private val context: Context) {
         "16:9" -> "crop='trunc(min(iw\\,ih*16/9)/2)*2':'trunc(min(ih\\,iw*9/16)/2)*2',setsar=1"
         "9:16" -> "crop='trunc(min(iw\\,ih*9/16)/2)*2':'trunc(min(ih\\,iw*16/9)/2)*2',setsar=1"
         "1:1"  -> "crop='trunc(min(iw\\,ih)/2)*2':'trunc(min(iw\\,ih)/2)*2',setsar=1"
+        "4:5"  -> "crop='trunc(min(iw\\,ih*4/5)/2)*2':'trunc(min(ih\\,iw*5/4)/2)*2',setsar=1"
+        "21:9" -> "crop='trunc(min(iw\\,ih*21/9)/2)*2':'trunc(min(ih\\,iw*9/21)/2)*2',setsar=1"
         else   -> null
     }
 

@@ -2316,7 +2316,7 @@ class VideoEditingActivity : AppCompatActivity() {
             ?.lastOrNull()
 
         val bounds = when (aspectRatio) {
-            "16:9", "9:16", "1:1" -> {
+            "16:9", "9:16", "1:1", "4:5", "21:9" -> {
                 if (cropOp != null && (cropOp.xFraction > 0f || cropOp.yFraction > 0f || cropOp.wFraction < 1f || cropOp.hFraction < 1f)) {
                     android.graphics.RectF(
                         cropOp.xFraction,

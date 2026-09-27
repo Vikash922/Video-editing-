@@ -54,7 +54,7 @@ sealed class EditOperation : Serializable {
     
     /**
      * Crop operation: Crops video to a specified aspect ratio.
-     * Supported aspects: "16:9", "9:16", "1:1"
+     * Supported aspects: "16:9", "9:16", "1:1", "4:5", "21:9", "Custom", "Original"
      * Uses FFmpeg's crop filter with video re-encoding.
      */
     data class Crop(
@@ -65,8 +65,22 @@ sealed class EditOperation : Serializable {
         val hFraction: Float = 1f,
         val id: String = System.nanoTime().toString()
     ) : EditOperation() {
+        companion object {
+            const val RATIO_16_9 = "16:9"
+            const val RATIO_9_16 = "9:16"
+            const val RATIO_1_1 = "1:1"
+            const val RATIO_4_5 = "4:5"
+            const val RATIO_21_9 = "21:9"
+            const val RATIO_CUSTOM = "Custom"
+            const val RATIO_ORIGINAL = "Original"
+
+            val SUPPORTED_RATIOS = listOf(
+                RATIO_16_9, RATIO_9_16, RATIO_1_1, RATIO_4_5, RATIO_21_9, RATIO_CUSTOM, RATIO_ORIGINAL
+            )
+        }
+
         init {
-            require(aspectRatio in listOf("16:9", "9:16", "1:1", "Custom")) { 
+            require(aspectRatio in SUPPORTED_RATIOS) { 
                 "Unsupported aspect ratio: $aspectRatio" 
             }
         }

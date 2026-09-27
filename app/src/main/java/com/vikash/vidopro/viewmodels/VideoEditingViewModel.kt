@@ -185,6 +185,8 @@ class VideoEditingViewModel : ViewModel() {
             "16:9" -> "crop='trunc(min(iw\\,ih*16/9)/2)*2':'trunc(min(ih\\,iw*9/16)/2)*2',setsar=1"
             "9:16" -> "crop='trunc(min(iw\\,ih*9/16)/2)*2':'trunc(min(ih\\,iw*16/9)/2)*2',setsar=1"
             "1:1"  -> "crop='trunc(min(iw\\,ih)/2)*2':'trunc(min(iw\\,ih)/2)*2',setsar=1"
+            "4:5"  -> "crop='trunc(min(iw\\,ih*4/5)/2)*2':'trunc(min(ih\\,iw*5/4)/2)*2',setsar=1"
+            "21:9" -> "crop='trunc(min(iw\\,ih*21/9)/2)*2':'trunc(min(ih\\,iw*9/21)/2)*2',setsar=1"
             else   -> null
         }
     }

@@ -58,7 +58,7 @@ class ProxyGenerationService : Service() {
         val proxyFileName = "proxy_${System.currentTimeMillis()}.mp4"
         val proxyFile = File(cacheDir, proxyFileName)
 
-        startForeground(NOTIFICATION_ID, buildNotification("Generating optimized playback proxy..."))
+        startForeground(NOTIFICATION_ID, buildNotification("Optimizing video for smooth editing..."))
 
         serviceScope.launch {
             try {
