@@ -246,10 +246,11 @@ sealed class EditOperation : Serializable {
         val isReversed: Boolean = false,
         val isMirrored: Boolean = false,
         val maskConfig: MaskConfig = MaskConfig(),
-        val isImage: Boolean = false
+        val isImage: Boolean = false,
+        val id: String = java.util.UUID.randomUUID().toString()
     ) : Serializable {
         val trimmedDurationMs: Long
-            get() = ((trimEndMs - trimStartMs) / speed).toLong()
+            get() = ((trimEndMs - trimStartMs).coerceAtLeast(0L) / speed).toLong()
     }
 
     /**

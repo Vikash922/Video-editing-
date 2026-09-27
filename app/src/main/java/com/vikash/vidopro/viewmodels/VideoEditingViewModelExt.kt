@@ -307,7 +307,18 @@ fun VideoEditingViewModel.splitVideoSegment(index: Int, localSplitTimeMs: Long, 
             val proxyUri = reverseOp?.proxyUri ?: speedOp?.proxyUri
             
             val mergeIdx = newOps.indexOfFirst { it is EditOperation.Merge }
-            val newItem = EditOperation.MergeItem(sourceUri, sourceDuration, trimStartMs = localSplitTimeMs, trimEndMs = oldEndMs, speed = speed, isReversed = isReversed, isMirrored = isMirrored, maskConfig = maskConfig, proxyUri = proxyUri)
+            val newItem = EditOperation.MergeItem(
+                sourceUri,
+                sourceDuration,
+                trimStartMs = localSplitTimeMs,
+                trimEndMs = oldEndMs,
+                speed = speed,
+                isReversed = isReversed,
+                isMirrored = isMirrored,
+                maskConfig = maskConfig,
+                proxyUri = proxyUri,
+                id = java.util.UUID.randomUUID().toString()
+            )
             if (mergeIdx != -1) {
                 val mergeOp = newOps[mergeIdx] as EditOperation.Merge
                 val items = mergeOp.items.toMutableList()
@@ -324,8 +335,12 @@ fun VideoEditingViewModel.splitVideoSegment(index: Int, localSplitTimeMs: Long, 
                 val targetIndex = index - 1
                 if (targetIndex >= 0 && targetIndex < items.size) {
                     val item = items[targetIndex]
-                    items[targetIndex] = item.copy(trimEndMs = localSplitTimeMs)
-                    items.add(targetIndex + 1, item.copy(trimStartMs = localSplitTimeMs))
+                    val item1 = item.copy(trimEndMs = localSplitTimeMs, id = java.util.UUID.randomUUID().toString())
+                    val item2 = item.copy(trimStartMs = localSplitTimeMs, id = java.util.UUID.randomUUID().toString())
+                    // Remove old video object and insert two new distinct objects
+                    items.removeAt(targetIndex)
+                    items.add(targetIndex, item1)
+                    items.add(targetIndex + 1, item2)
                     newOps[mergeIdx] = mergeOp.copy(items = items)
                 }
             }

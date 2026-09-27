@@ -19,6 +19,7 @@ fun VideoEditorScreen(
     val isScrubbing by viewModel.isScrubbing.collectAsState()
     val markers by viewModel.markers.collectAsState()
     val thumbnails by viewModel.thumbnails.collectAsState()
+    val clips by viewModel.clips.collectAsState()
 
     LaunchedEffect(videoPath, totalDurationMs) {
         if (videoPath.isNotEmpty() && totalDurationMs > 0L) {
@@ -36,7 +37,7 @@ fun VideoEditorScreen(
                 .padding(paddingValues),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Video Player Area
+            // Video Player Area with Pinch-to-Zoom & Pan support
             VideoPlayer(
                 videoUri = videoPath,
                 currentTimeMs = currentTimeMs,
@@ -48,13 +49,15 @@ fun VideoEditorScreen(
                     .weight(1f)
             )
 
-            // Timeline Scrubbing & Marker Controls
+            // Timeline Scrubbing, Split & Marker Controls
             VideoTimeline(
                 totalDurationMs = totalDurationMs,
                 currentTimeMs = currentTimeMs,
                 markers = markers,
                 thumbnails = thumbnails,
                 isScrubbing = isScrubbing,
+                clips = clips,
+                onSplit = { viewModel.splitAtCurrentTime() },
                 onScrubStart = { viewModel.onScrubStart() },
                 onScrub = { time -> viewModel.onScrub(time) },
                 onScrubEnd = { viewModel.onScrubEnd() },

@@ -131,8 +131,9 @@ class VideoEditingActivity : AppCompatActivity() {
     private var pixelsPerMs: Float = 0.3f
     private var lastSnappedTargetMs: Long = -1L
     private enum class ZoomMode { FIT, MEDIUM, PRECISION }
-    private var currentZoomMode = ZoomMode.MEDIUM
     private lateinit var scaleDetector: android.view.ScaleGestureDetector
+    private var videoPinchScale: Float = 1.0f
+    private lateinit var videoScaleDetector: android.view.ScaleGestureDetector
 
     private fun Int.dpToPx(): Int {
         return (this * resources.displayMetrics.density).toInt()
@@ -794,6 +795,61 @@ class VideoEditingActivity : AppCompatActivity() {
         playerContainer.viewTreeObserver.addOnGlobalLayoutListener(canvasLayoutListener)
         pipPlayerContainer.viewTreeObserver.addOnGlobalLayoutListener(canvasLayoutListener)
         fullscreenCanvasHolder.viewTreeObserver.addOnGlobalLayoutListener(canvasLayoutListener)
+
+        videoScaleDetector = android.view.ScaleGestureDetector(this, object : android.view.ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScale(detector: android.view.ScaleGestureDetector): Boolean {
+                val factor = detector.scaleFactor
+                val newScale = (videoPinchScale * factor).coerceIn(1.0f, 5.0f)
+                videoPinchScale = newScale
+                playerView.scaleX = newScale
+                playerView.scaleY = newScale
+                return true
+            }
+        })
+
+        val videoDoubleTapDetector = android.view.GestureDetector(this, object : android.view.GestureDetector.SimpleOnGestureListener() {
+            override fun onDoubleTap(e: android.view.MotionEvent): Boolean {
+                videoPinchScale = 1.0f
+                playerView.scaleX = 1.0f
+                playerView.scaleY = 1.0f
+                playerView.translationX = 0f
+                playerView.translationY = 0f
+                return true
+            }
+        })
+
+        var lastTouchX = 0f
+        var lastTouchY = 0f
+        playerContainer.setOnTouchListener { v, event ->
+            v.parent?.requestDisallowInterceptTouchEvent(true)
+            videoDoubleTapDetector.onTouchEvent(event)
+            videoScaleDetector.onTouchEvent(event)
+
+            when (event.actionMasked) {
+                android.view.MotionEvent.ACTION_DOWN -> {
+                    lastTouchX = event.x
+                    lastTouchY = event.y
+                }
+                android.view.MotionEvent.ACTION_MOVE -> {
+                    if (videoPinchScale > 1.0f && !videoScaleDetector.isInProgress && event.pointerCount == 1) {
+                        val dx = event.x - lastTouchX
+                        val dy = event.y - lastTouchY
+                        val maxTransX = (v.width * (videoPinchScale - 1f)) / 2f
+                        val maxTransY = (v.height * (videoPinchScale - 1f)) / 2f
+                        playerView.translationX = (playerView.translationX + dx).coerceIn(-maxTransX, maxTransX)
+                        playerView.translationY = (playerView.translationY + dy).coerceIn(-maxTransY, maxTransY)
+                        lastTouchX = event.x
+                        lastTouchY = event.y
+                    }
+                }
+            }
+
+            if (videoScaleDetector.isInProgress || event.pointerCount >= 2) {
+                true
+            } else {
+                videoPinchScale > 1.0f
+            }
+        }
 
         tvDuration = findViewById(R.id.tvDuration)
         sequenceTrackContainer = findViewById(R.id.sequenceTrackContainer)
@@ -4231,6 +4287,13 @@ class VideoEditingActivity : AppCompatActivity() {
         }
         isVideoLoaded = false
         videoUri = null
+        videoPinchScale = 1.0f
+        if (::playerView.isInitialized) {
+            playerView.scaleX = 1.0f
+            playerView.scaleY = 1.0f
+            playerView.translationX = 0f
+            playerView.translationY = 0f
+        }
         viewModel.clearAllOperations() // wait, no initialize is better
         
         // Keep timeline container visible, but hide its normal contents
@@ -4482,6 +4545,13 @@ class VideoEditingActivity : AppCompatActivity() {
         isImportLoading = true
         isVideoLoaded = false
         videoUri = uri
+        videoPinchScale = 1.0f
+        if (::playerView.isInitialized) {
+            playerView.scaleX = 1.0f
+            playerView.scaleY = 1.0f
+            playerView.translationX = 0f
+            playerView.translationY = 0f
+        }
         
         lifecycleScope.launch {
             val projectSourcePath = getFilePathFromUri(uri)

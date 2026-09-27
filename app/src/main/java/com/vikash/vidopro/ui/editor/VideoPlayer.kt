@@ -1,12 +1,23 @@
 package com.vikash.vidopro.ui.editor
 
+import android.view.ScaleGestureDetector
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -94,15 +105,79 @@ fun VideoPlayer(
         }
     }
 
-    AndroidView(
-        factory = { ctx ->
-            StyledPlayerView(ctx).apply {
-                player = exoPlayer
-                useController = false
-            }
-        },
+    // Pinch-to-zoom state with strict [1.0f, 5.0f] bounds
+    var zoomScale by remember { mutableFloatStateOf(1.0f) }
+    var panOffsetX by remember { mutableFloatStateOf(0f) }
+    var panOffsetY by remember { mutableFloatStateOf(0f) }
+
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .height(260.dp)
-    )
+            .clipToBounds()
+            .pointerInput(Unit) {
+                // Double tap resets zoom to 1.0f
+                detectTapGestures(
+                    onDoubleTap = {
+                        zoomScale = 1.0f
+                        panOffsetX = 0f
+                        panOffsetY = 0f
+                    }
+                )
+            }
+            .pointerInput(Unit) {
+                detectTransformGestures { _, pan, zoom, _ ->
+                    // Limit zoom strictly between 1.0f and 5.0f to prevent OOM
+                    val newScale = (zoomScale * zoom).coerceIn(1.0f, 5.0f)
+                    zoomScale = newScale
+                    if (newScale > 1.0f) {
+                        val maxOffsetX = (size.width * (newScale - 1f)) / 2f
+                        val maxOffsetY = (size.height * (newScale - 1f)) / 2f
+                        panOffsetX = (panOffsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
+                        panOffsetY = (panOffsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                    } else {
+                        panOffsetX = 0f
+                        panOffsetY = 0f
+                    }
+                }
+            }
+    ) {
+        AndroidView(
+            factory = { ctx ->
+                StyledPlayerView(ctx).apply {
+                    player = exoPlayer
+                    useController = false
+
+                    // ScaleGestureDetector on Video View
+                    val scaleDetector = ScaleGestureDetector(ctx, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                        override fun onScale(detector: ScaleGestureDetector): Boolean {
+                            val factor = detector.scaleFactor
+                            val updatedScale = (scaleX * factor).coerceIn(1.0f, 5.0f)
+                            scaleX = updatedScale
+                            scaleY = updatedScale
+                            return true
+                        }
+                    })
+
+                    setOnTouchListener { v, event ->
+                        v.parent?.requestDisallowInterceptTouchEvent(true)
+                        scaleDetector.onTouchEvent(event)
+                        if (scaleDetector.isInProgress || event.pointerCount >= 2) {
+                            true
+                        } else {
+                            v.onTouchEvent(event)
+                        }
+                    }
+                }
+            },
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer(
+                    scaleX = zoomScale,
+                    scaleY = zoomScale,
+                    translationX = panOffsetX,
+                    translationY = panOffsetY
+                )
+        )
+    }
 }

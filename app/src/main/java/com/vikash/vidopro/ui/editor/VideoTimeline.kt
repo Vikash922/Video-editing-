@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,8 +28,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.vikash.vidopro.viewmodels.TimelineClip
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.math.abs
@@ -40,6 +43,8 @@ fun VideoTimeline(
     markers: List<Long>,
     thumbnails: List<Bitmap>,
     isScrubbing: Boolean,
+    clips: List<TimelineClip> = emptyList(),
+    onSplit: () -> Unit = {},
     onScrubStart: () -> Unit,
     onScrub: (Long) -> Unit,
     onScrubEnd: () -> Unit,
@@ -101,7 +106,7 @@ fun VideoTimeline(
         }
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Header Controls: Time display and Marker Navigation
+            // Header Controls: Time display, Split button and Marker Navigation
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -115,7 +120,10 @@ fun VideoTimeline(
                     fontSize = 13.sp
                 )
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                     // Previous Marker
                     IconButton(onClick = {
                         val prev = markers.reversed().firstOrNull { it < currentTimeMs - 50L }
@@ -143,6 +151,20 @@ fun VideoTimeline(
                         Icon(
                             Icons.Default.Add,
                             contentDescription = "Add Marker",
+                            tint = Color.White
+                        )
+                    }
+
+                    // Split Button: Instantly splits the current clip with unique UUIDs
+                    FilledTonalIconButton(
+                        onClick = onSplit,
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = Color(0xFFFF5252)
+                        )
+                    ) {
+                        Icon(
+                            Icons.Default.ContentCut,
+                            contentDescription = "Split Clip",
                             tint = Color.White
                         )
                     }
@@ -183,7 +205,7 @@ fun VideoTimeline(
                     // Start Half-screen padding (Aligns 00:00 to center playhead)
                     Spacer(modifier = Modifier.width(halfWidthDp))
 
-                    // Track with Thumbnails & Marker Canvas
+                    // Track with Thumbnails, Clips (keyed by UUID) & Marker Canvas
                     Box(
                         modifier = Modifier
                             .width(with(density) { totalTimelinePx.toDp() })
@@ -202,17 +224,71 @@ fun VideoTimeline(
                                 }
                             }
                     ) {
-                        // Thumbnails rendering
-                        Row(modifier = Modifier.fillMaxSize()) {
-                            thumbnails.forEach { bitmap ->
-                                Image(
-                                    bitmap = bitmap.asImageBitmap(),
-                                    contentDescription = "Thumbnail",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight()
-                                )
+                        // Render Clips with unique IDs to prevent drag-and-drop / Compose glitch
+                        if (clips.isNotEmpty()) {
+                            Row(modifier = Modifier.fillMaxSize()) {
+                                clips.forEach { clip ->
+                                    key(clip.id) {
+                                        val clipFraction = (clip.durationMs.toFloat() / totalDurationMs.coerceAtLeast(1L)).coerceIn(0.001f, 1f)
+                                        val clipWidthDp = with(density) { (totalTimelinePx * clipFraction).toDp() }
+
+                                        Box(
+                                            modifier = Modifier
+                                                .width(clipWidthDp)
+                                                .fillMaxHeight()
+                                                .padding(horizontal = 1.dp)
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(Color(0xFF28282E))
+                                                .border(1.dp, Color(clip.colorHex).copy(alpha = 0.8f), RoundedCornerShape(6.dp))
+                                        ) {
+                                            if (thumbnails.isNotEmpty()) {
+                                                Row(modifier = Modifier.fillMaxSize()) {
+                                                    val startFrac = (clip.startMs.toFloat() / totalDurationMs.coerceAtLeast(1L)).coerceIn(0f, 1f)
+                                                    val endFrac = ((clip.startMs + clip.durationMs).toFloat() / totalDurationMs.coerceAtLeast(1L)).coerceIn(0f, 1f)
+                                                    val startThumbIdx = (startFrac * thumbnails.size).toInt().coerceIn(0, thumbnails.size - 1)
+                                                    val endThumbIdx = (endFrac * thumbnails.size).toInt().coerceIn(startThumbIdx, thumbnails.size - 1)
+                                                    val clipThumbs = thumbnails.subList(startThumbIdx, endThumbIdx + 1)
+
+                                                    clipThumbs.forEach { bitmap ->
+                                                        Image(
+                                                            bitmap = bitmap.asImageBitmap(),
+                                                            contentDescription = "Clip Thumbnail",
+                                                            contentScale = ContentScale.Crop,
+                                                            modifier = Modifier
+                                                                .weight(1f)
+                                                                .fillMaxHeight()
+                                                        )
+                                                    }
+                                                }
+                                            }
+
+                                            Text(
+                                                text = clip.name,
+                                                color = Color.White,
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                modifier = Modifier
+                                                    .align(Alignment.BottomStart)
+                                                    .background(Color(0x99000000), RoundedCornerShape(topEnd = 4.dp))
+                                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            // Fallback Thumbnail rendering if clips are not yet partitioned
+                            Row(modifier = Modifier.fillMaxSize()) {
+                                thumbnails.forEach { bitmap ->
+                                    Image(
+                                        bitmap = bitmap.asImageBitmap(),
+                                        contentDescription = "Thumbnail",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .fillMaxHeight()
+                                    )
+                                }
                             }
                         }
 
