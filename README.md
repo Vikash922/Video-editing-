@@ -1,74 +1,82 @@
-# VidoPRO
+# VidoPRO 🎬
 
 <div align="center">
   <img src="src/images/featureGraphic.png" alt="VidoPRO Banner" width="100%"/>
-  <br/>
-  <br/>
+  <br/><br/>
 
-  <a href="https://github.com/vikash/VidoPRO">
-    <img src="https://img.shields.io/badge/Sponsor_VidoPRO-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white" height="35" alt="Sponsor Vikash" />
+  <a href="https://github.com/Vikash922/Video-editing-/releases/latest">
+    <img src="https://img.shields.io/github/v/release/Vikash922/Video-editing-?style=for-the-badge&color=6C5CE7&label=Latest%20Release" alt="Latest Release"/>
+  </a>
+  <a href="https://github.com/Vikash922/Video-editing-/actions">
+    <img src="https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge&logo=github-actions&logoColor=white" alt="Build Status"/>
   </a>
   <a href="LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" height="35" alt="License" />
+    <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="MIT License"/>
   </a>
-  <br/>
-  <br/>
-  <a href="https://github.com/vikash/VidoPRO/releases/latest">
-    <img src="src/images/badges/badge_github.png" alt="Get it on GitHub" height="96" />
+  <a href="https://github.com/Vikash922/Video-editing-">
+    <img src="https://img.shields.io/badge/Platform-Android%208.0%2B-green?style=for-the-badge&logo=android&logoColor=white" alt="Platform"/>
   </a>
-  <a href="https://github.com/vikash/VidoPRO">
-    <img src="src/images/badges/badge_fdroid.png" alt="Get it on F-Droid" height="96" />
+  <a href="https://github.com/Vikash922/Video-editing-">
+    <img src="https://img.shields.io/badge/Privacy-100%25%20Offline-orange?style=for-the-badge" alt="Offline & Private"/>
   </a>
-  <a href="https://github.com/vikash/VidoPRO">
-    <img src="src/images/badges/badge_obtainium.png" height="96" alt="Get it on Obtainium" />
-  </a>
-  <a href="https://discord.gg/gwr3nE7YW">
-    <img src="src/images/badges/badge_discord.png" height="96" alt="Join Discord" />
+
+  <br/><br/>
+
+  <a href="https://github.com/Vikash922/Video-editing-/releases/latest">
+    <img src="src/images/badges/badge_github.png" alt="Download APK on GitHub" height="85" />
   </a>
 </div>
 
 <br/>
 
-**VidoPRO** is a free, open-source video editor for Android that prioritizes simplicity, efficiency, and privacy. Built for seamless performance, it empowers creators to easily select, edit, and export watermark-free videos locally on their device.
+**VidoPRO** is a powerful, modern, open-source video editor built for Android. It combines intuitive multi-track timeline editing, smooth real-time scrubbing, advanced hardware acceleration, and complete privacy. All video processing happens **100% locally on your device** — no ads, no trackers, and **zero watermarks**.
 
 ---
 
-## ✊ Keep Android Open
+## 🌟 Highlights & Key Features
 
-[![Keep Android Open](https://img.shields.io/badge/Keep-Android_Open-brightgreen?style=for-the-badge&logo=android)](https://keepandroidopen.org/)
+### ✂️ Precision Multi-Track Timeline
+- **Split & Cut:** Split clips instantly with dedicated scissors control and zero lag. Each segment maintains unique state identification.
+- **Drag & Reorder:** Seamlessly drag, arrange, and reorder video segments on the timeline.
+- **Trim & Freeze Frame:** High-precision clip trimming and freeze-frame extraction with millisecond accuracy.
+- **Thumbnail Strip:** Hardware-assisted background thumbnail caching (`LruCache`) prevents black frames and memory exhaustion.
 
-Google's mandatory developer verification policy goes into effect in **September 2026** (in just a few months). This mandate requires all independent developers to submit government ID and centrally register with Google, threatening user privacy, sideloading freedom, and the distribution of free and open-source software (FOSS) on Android. 
+### 🔍 Interactive Player & Canvas Zoom
+- **Pinch-to-Zoom:** Native two-finger pinch-to-zoom on the preview canvas with strict safety limits (`1.0x` to `5.0x`) to avoid memory overload.
+- **Double-Tap Reset:** Quickly restore preview scale back to standard 1.0x with a simple double-tap.
+- **Fluid Pan:** Smooth pan navigation across zoomed video canvas.
 
-Help resist this gatekeeping and support the movement at [keepandroidopen.org](https://keepandroidopen.org/).
+### ⚡ Heavy Media & 4K 60fps Optimization
+- **Auto Proxy Generation:** Detects heavy 4K 60fps media and automatically generates smooth 1080p 30fps editing proxies in the background.
+- **Full Resolution Final Export:** Proxies are used exclusively for lag-free timeline editing, while final exports utilize the original full-quality 4K source.
+
+### 📐 Multi-Format Aspect Ratios
+- Supports all major creator ratios out of the box:
+  - **16:9** (YouTube / Widescreen)
+  - **9:16** (Reels, TikTok, YouTube Shorts)
+  - **1:1** (Square feed posts)
+  - **4:5** (Instagram Portrait feed)
+  - **4:3** & **Custom Crop**
+
+### 🎨 Overlays, Text & Creative Effects
+- **Picture-in-Picture (PIP):** Add multiple video, image, sticker, and GIF overlays on top of the main track.
+- **Typography & Custom Fonts:** Add customizable text overlays with support for importing `.ttf` and `.otf` font files.
+- **Masking:** Creative mask shapes (circle, rectangle, linear) for overlays and video clips.
+- **Chroma Key (Green Screen):** Remove color backgrounds cleanly from overlays.
+- **Keyframe Animation:** Animate scale, position, and opacity across time with keyframes.
+- **Freehand Drawing:** Draw directly onto video frames with customizable brush sizes and colors.
+
+### 🎵 Advanced Audio Studio
+- **Multi-Track Audio:** Import custom music tracks, sound effects, and record voiceovers directly.
+- **Audio Controls:** Volume boost up to 200%, ducking, fade-in, fade-out, and original audio mute.
+- **Standalone Audio Export:** Export your complete timeline audio as an `.mp3` file.
+
+### 🚀 High-Performance Hardware Rendering
+- **MediaCodec Acceleration:** Super-fast video rendering using device GPU hardware encoding (`h264_mediacodec`).
+- **Reliable Fallback:** Automatic seamless fallback to software encoding for maximum Android device compatibility.
+- **Accurate Real-Time Progress:** Granular percentage tracking and estimated completion time during export.
 
 ---
-
-## 🚀 Features
-
-- **Trim** - Remove unwanted parts from the beginning or end of a video clip with a real-time timeline control.
-- **Overlays** - Place text, stickers, images, GIFs, and video overlays on top of video clips to create engaging content. Includes support for continuous media looping.
-- **Masking** - Apply various mask shapes to your overlays for creative effects.
-- **Chroma Key** - Remove backgrounds from any overlay using the green screen effect.
-- **Keyframes** - Animate overlays across the screen with keyframe support.
-- **Subtitles (Captions)** - Import custom `.srt` subtitle files with a dedicated toolbar slider for resizing and fully interactive touch-based positioning directly on the video preview.
-- **Layer Management** - Easily reorder overlay layers to control what renders on top.
-- **Audio** - Manage soundtracks effortlessly by importing custom music or audio tracks, recording voice overs, applying audio ducking and fades, amplifying volume up to 200%, and muting original audio.
-- **Audio Export** - Export your project's entire audio mix as a standalone MP3 file.
-- **Snapshots** - Capture and save high-quality frame grabs (snapshots) directly from the video editor.
-- **Crop** - Adjust the aspect ratio of a video with custom cropping support.
-- **Merge** - Combine multiple video segments into a continuous sequence with drag-to-rearrange functionality.
-- **Transition** - Apply transitions with animated visual previews in the toolbar.
-- **Speed** - Change the speed of a video clip using a custom speed slider for granular control.
-- **Adjust & Filters** - Modify video brightness, contrast, saturation, and apply color filters.
-- **Canvas Background** - Add a blurred background or a solid color for a cohesive look when your video aspect ratio does not match the project frame.
-- **Reverse** - Reverse video playback.
-- **Timeline Organization** - Enhanced editing with snapping functionality, overlay duplication, freeze frame actions, and improved UI visual styling.
-- **Project Save & Import** - Save non-destructive project state as a `.lcprj` file to save and reopen editable project files anytime.
-- **Freehand Drawing** - Draw directly on top of video clips with custom brush color and stroke controls.
-- **Custom Fonts** - Import `.ttf` or `.otf` font files to customize text overlay typography.
-- **Fullscreen Preview** - Switch to true fullscreen preview mode with expanded timeline view and overlay controls.
-- **Android 13+ Themed Icon** - Supports native monochrome adaptive icons for Android 13+ system themes.
-- **Hardware Acceleration** - Super-fast and reliable video exports using device hardware-accelerated `h264_mediacodec` encoding (with seamless automatic fallback to software encoding for maximum device compatibility) and accurate FFmpeg progress calculation.
 
 ## 📱 Screenshots
 
@@ -81,72 +89,76 @@ Help resist this gatekeeping and support the movement at [keepandroidopen.org](h
       <td align="center"><img src="src/images/sc_4.png" width="100%" alt="Timeline"/></td>
     </tr>
     <tr>
-      <td align="center"><b>Home Screen</b></td>
-      <td align="center"><b>Editor Screen</b></td>
-      <td align="center"><b>Audio Import</b></td>
-      <td align="center"><b>Timeline</b></td>
+      <td align="center"><b>Home & Projects</b></td>
+      <td align="center"><b>Video Editor</b></td>
+      <td align="center"><b>Audio Studio</b></td>
+      <td align="center"><b>Multi-Track Timeline</b></td>
     </tr>
   </table>
 </div>
 
-## 💖 Support VidoPRO
+---
 
-VidoPRO is built with passion and provided to the community for free. If this app has helped you create amazing videos, consider supporting its continued development! Your sponsorship helps keep the project alive and growing.
+## 📥 Download & Installation
 
-<div align="center">
-  <br/>
-  <a href="https://github.com/vikash/VidoPRO"><img src="https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=%23EA4AAA" alt="GitHub Sponsors" /></a>
-  <br/>
-  <br/>
-</div>
+The latest release APK is ready to download directly from GitHub:
 
-## 🛠️ Getting Started
+1. Go to the [Releases Page](https://github.com/Vikash922/Video-editing-/releases/latest).
+2. Download the latest `VidoPRO-v*.apk` file.
+3. Open the APK on your Android device and tap **Install** *(Enable "Install unknown apps" if prompted)*.
+
+---
+
+## 🛠️ Tech Stack & Architecture
+
+- **Language:** Kotlin
+- **UI Framework:** Jetpack Compose & Android Modern Material 3 Design
+- **Media Playback:** ExoPlayer (Media3) with low-latency buffering control
+- **Video Engine:** FFmpeg Kit & Android MediaCodec Hardware Acceleration
+- **Image & Thumbnail Pipeline:** Coroutines `Dispatchers.IO`, `MediaMetadataRetriever`, `LruCache`
+- **Architecture Pattern:** MVVM (Model-View-ViewModel) + Unidirectional Data Flow (`StateFlow` / `SharedFlow`)
+
+---
+
+## 🏗️ Building from Source
 
 ### Prerequisites
+- Android Studio Iguana or newer
+- Android SDK (API 34)
+- JDK 17
 
-- Android Studio
-- Android SDK
+### Steps
+```bash
+# 1. Clone the repository
+git clone https://github.com/Vikash922/Video-editing-.git
 
-### Installation
+# 2. Navigate to the project directory
+cd Video-editing-
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/vikash/VidoPRO.git
-   ```
-2. **Open the project in Android Studio**:
-   - Launch Android Studio and select "Open an existing Android Studio project."
-   - Navigate to the cloned directory and select it.
-3. **Build the project**:
-   - Click on "Build" in the menu, then select "Make Project."
-4. **Run the app**:
-   - Connect an Android device or start an emulator.
-   - Click on the "Run" button in Android Studio.
+# 3. Build Release APK
+./gradlew assembleRelease
+```
+The generated APK will be located at:
+`app/build/outputs/apk/release/`
 
-## 🔒 Permissions
+---
 
-VidoPRO requires the following permissions to function properly:
+## 🔒 Permissions & Privacy
 
-- **READ_EXTERNAL_STORAGE**: To read videos from the device.
-- **WRITE_EXTERNAL_STORAGE**: (For older Android versions) To save edited videos.
-- **POST_NOTIFICATIONS**: To show notifications related to video editing.
-- **READ_MEDIA_AUDIO/VIDEO/IMAGES**: For accessing media files on devices running Android 13 (API level 33) and above.
+VidoPRO is built around **privacy by design**:
+- **Zero Telemetry:** No user analytics, no background tracking, no remote data collection.
+- **Offline First:** All editing and rendering operations run completely offline on your device.
+- **Media Permissions:** Used strictly for importing the photos/videos you select and saving exported media to your gallery.
 
-## 🔧 Troubleshooting & Support
+---
 
-If you encounter any export failures, codec errors, or unexpected crashes during your editing workflow:
-- Refer to our comprehensive [Error Codes & Troubleshooting Guide](https://github.com/vikash/VidoPRO/wiki/Error-Codes-&-Troubleshooting) on the Wiki.
-- Join our [Discord Community](https://discord.gg/gwr3nE7YW) for real-time support, suggestions, and app updates.
+## 👤 Author & Maintainer
 
-## 🤝 Contributing
+* **Vikash Singh** - [@Vikash922](https://github.com/Vikash922)
 
-Contributions are welcome! If you have suggestions or improvements, feel free to create a pull request or open an issue.
+---
 
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Commit your changes.
-4. Push to the branch.
-5. Submit a pull request.
+## 📄 License
 
-## 📝 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is open-source under the [MIT License](LICENSE).
+Feel free to use, study, and modify the code.
